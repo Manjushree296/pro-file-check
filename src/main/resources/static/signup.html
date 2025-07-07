@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signup</title>
+    <style>
+        body {
+          font-family: Arial;
+          background: #f0f0f0;
+        }
+        .container {
+          max-width: 400px;
+          margin: 100px auto;
+          padding: 30px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        input, button {
+          width: 100%;
+          padding: 10px;
+          margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+        <input type="text" id="name" placeholder="Name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Sign Up</button>
+    </form>
+    <p id="message"></p>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+    //replace with your actual config
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const msg = document.getElementById("message");
+
+      try {
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const userId = userCredential.user.uid;
+
+        await db.collection("users").doc(userId).set({
+          name: name,
+          email: email
+        });
+
+        msg.style.color = "green";
+        msg.textContent = "✅ Signup successful! Redirecting...";
+        setTimeout(() => window.location.href = "login.html", 1500);
+
+      } catch (error) {
+        msg.style.color = "red";
+        msg.textContent = "❌ " + error.message;
+        console.error(error);
+      }
+    });
+</script>
+</body>
+</html>
